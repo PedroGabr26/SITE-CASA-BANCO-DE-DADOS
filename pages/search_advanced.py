@@ -25,17 +25,11 @@ def fazer_requisicao(filtros):
     if filtros.get('codigo_atividade_principal'):
         body['codigo_atividade_principal'] = filtros['codigo_atividade_principal']
     
-    # Se as datas de abertura não forem fornecidas, define o valor padrão "2025-01-12"
+    # Se as datas de abertura forem fornecidas, adiciona ao corpo, caso contrário, omite
     if filtros.get('data_abertura_inicio') and filtros.get('data_abertura_fim'):
         body['data_abertura'] = {
             "inicio": filtros['data_abertura_inicio'],
             "fim": filtros['data_abertura_fim'],
-            "ultimos_dias": 0
-        }
-    else:
-        body['data_abertura'] = {
-            "inicio": "2025-01-12",
-            "fim": "2025-01-12",
             "ultimos_dias": 0
         }
 
@@ -70,11 +64,6 @@ def app():
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
     capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=0)
     capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=1000, value=0)
-
-    # Ajustando as datas de abertura para "2025-01-12" se não forem informadas
-    if not data_abertura_inicio and not data_abertura_fim:
-        data_abertura_inicio = "2025-01-12"
-        data_abertura_fim = "2025-01-12"
 
     # Criando o dicionário de filtros, ignorando valores vazios
     filtros = {
