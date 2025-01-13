@@ -16,9 +16,6 @@ def fazer_requisicao(filtros):
         body['cnpj'] = filtros['cnpj']
     if filtros.get('nome_empresa'):
         body['nome_empresa'] = filtros['nome_empresa']
-    # Adicionando filtros no corpo da requisição, apenas se houver valores
-    if filtros.get('estado'):
-        body['estado'] = filtros['estado']
     if filtros.get('bairro'):
         body['bairro'] = filtros['bairro']
     if filtros.get('cep'):
@@ -54,16 +51,14 @@ def fazer_requisicao(filtros):
     else:
         return {"erro": response.status_code}
 
-municipio = None
 # Interface com Streamlit
 def app():
     # Campos de input para os filtros
     cnpj = st.text_input("CNPJ:", " ", placeholder="99999999999999", key="cnpj_input")
-    nome_empresa = st.text_input("Nome da Empresa"," ",key="nome_empresa_input"),
-    estado = st.text_input("Estado", " ",key="estado_input")
-    ddd = st.text_input("DDD", " ",key="ddd_input"),
-    cep = st.text_input("CEP", " ", key="cep_input"),
-    bairro = st.text_input("Bairro"," ",key="bairro_input")
+    nome_empresa = st.text_input("Nome da Empresa", " ", key="nome_empresa_input")
+    ddd = st.text_input("DDD", " ", key="ddd_input")
+    cep = st.text_input("CEP", " ", key="cep_input")
+    bairro = st.text_input("Bairro", " ", key="bairro_input")
     situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INAPTA"])
     codigo_atividade_principal = st.text_input("Código Atividade Principal (ex: 7020400)", "")
     data_abertura_inicio = st.date_input("Data Abertura - Início", None)
@@ -71,15 +66,13 @@ def app():
     capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=0)
     capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=1000, value=0)
 
-    
     # Criando o dicionário de filtros, ignorando valores vazios
     filtros = {
         "cnpj": [cnpj] if cnpj else None,
         "nome_empresa": [nome_empresa] if nome_empresa else None,
-        "ddd":[ddd] if ddd else None,
-        "estado":[estado] if estado else None,
+        "ddd": [ddd] if ddd else None,
+        "cep": [cep] if cep else None,
         "bairro": [bairro] if bairro else None,
-        "cep":[cep] if cep else None,
         "situacao_cadastral": [situacao_cadastral] if situacao_cadastral else None,
         "codigo_atividade_principal": [codigo_atividade_principal] if codigo_atividade_principal else None,
         "data_abertura_inicio": data_abertura_inicio if data_abertura_inicio else None,
