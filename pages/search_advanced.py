@@ -60,10 +60,7 @@ def app():
     # Campos de input para os filtros
     cnpj = st.text_input("CNPJ:", " ", placeholder="99999999999999", key="cnpj_input")
     nome_empresa = st.text_input("Nome da Empresa"," ",key="nome_empresa_input"),
-    estado = st.selectbox(
-        "Selecione o Estado",
-        [""] + ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"]
-    ),
+    estado = st.text_input("Estado", " ",key="estado_input")
     ddd = st.text_input("DDD", " ",key="ddd_input"),
     cep = st.text_input("CEP", " ", key="cep_input"),
     bairro = st.text_input("Bairro"," ",key="bairro_input")
