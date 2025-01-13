@@ -19,10 +19,6 @@ def fazer_requisicao(filtros):
     # Adicionando filtros no corpo da requisição, apenas se houver valores
     if filtros.get('estado'):
         body['estado'] = filtros['estado']
-    if filtros.get('municipio'):
-        body['municipio'] = filtros['municipio']
-    if filtros['municipio']:
-        body['municipio'] = filtros['municipio']
     if filtros.get('bairro'):
         body['bairro'] = filtros['bairro']
     if filtros.get('cep'):
@@ -77,19 +73,7 @@ def app():
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
     capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=0)
     capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=1000, value=0)
-    if estado:
-        url = f"https://servicodados.ibge.gov.br/api/v2/municipios?uf={estado}"
-        response = requests.get(url)
-        
-        if response.status_code == 200:
-            municipios_data = response.json()
-            municipios = [municipio['nome'] for municipio in municipios_data]
 
-            municipio = st.selectbox("Selecione o Município", [""] + municipios)
-        else:
-            st.error("Erro ao carregar municípios. Tente novamente.")
-    else:
-        st.info("Selecione um estado para exibir os municípios.")
     
     # Criando o dicionário de filtros, ignorando valores vazios
     filtros = {
@@ -97,7 +81,6 @@ def app():
         "nome_empresa": [nome_empresa] if nome_empresa else None,
         "ddd":[ddd] if ddd else None,
         "estado":[estado] if estado else None,
-        "municipio": municipio if municipio else None,
         "bairro": [bairro] if bairro else None,
         "cep":[cep] if cep else None,
         "situacao_cadastral": [situacao_cadastral] if situacao_cadastral else None,
