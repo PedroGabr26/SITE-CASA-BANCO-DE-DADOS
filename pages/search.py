@@ -35,7 +35,7 @@ if api_key.strip():
                 st.write(f"**Razão Social**: {data['razao_social']}")
                 st.write(f"**CNPJ**: {data['cnpj']}")
                 st.write(f"**CNPJ Raiz**: {data['cnpj_raiz']}")
-                st.write(f"**Matriz ou Filial**: {data['matri_filial']}")
+                st.write(f"**Matriz ou Filial**: {data['matriz_filial']}")
                 st.write(f"**Natureza Jurídica**: {data['descricao_natureza_juridica']}")
                 st.write(f"**Qualificação do Responsável**: {data['qualificacao_responsavel']['descricao']}")
                 st.write(f"**Porte da Empresa**: {data['porte_empresa']['descricao']}")
