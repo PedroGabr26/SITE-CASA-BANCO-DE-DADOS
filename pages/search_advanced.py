@@ -1,34 +1,40 @@
 import streamlit as st
 import requests
 
-st.title("Página 3")
+st.title("Busca Avançada CNPJ")
+
 # Função para realizar a requisição à API
 def fazer_requisicao(filtros):
     url = "https://api.casadosdados.com.br/v5/cnpj/pesquisa"
-    headers = { # provavel mudança : pegar o valor da api-key da página 2 e jogar aqui
-      "api-key": "485a4129e6a8763fe42c87b03996ab87b93092727623ddf2763da480588d8ed8f36f7b092cfc5af5ec1b5062b9eac8cd8e2ed9298c95f6f25d2908dd8287012c"
+    headers = {
+        "api-key": "485a4129e6a8763fe42c87b03996ab87b93092727623ddf2763da480588d8ed8f36f7b092cfc5af5ec1b5062b9eac8cd8e2ed9298c95f6f25d2908dd8287012c"
     }
 
     # Corpo da requisição com os filtros
     body = {}
 
-    # Adicionando filtros no corpo da requisição
-    if filtros['estado']:
+    # Adicionando filtros no corpo da requisição, apenas se houver valores
+    if filtros.get('estado'):
         body['estado'] = filtros['estado']
-    if filtros['situacao_cadastral']:
+    if filtros.get('situacao_cadastral'):
         body['situacao_cadastral'] = filtros['situacao_cadastral']
-    if filtros['codigo_atividade_principal']:
+    if filtros.get('codigo_atividade_principal'):
         body['codigo_atividade_principal'] = filtros['codigo_atividade_principal']
-    if filtros['data_abertura_inicio'] and filtros['data_abertura_fim']:
+    if filtros.get('data_abertura_inicio') and filtros.get('data_abertura_fim'):
         body['data_abertura'] = {
             "inicio": filtros['data_abertura_inicio'],
-            "fim": filtros['data_abertura_fim']
+            "fim": filtros['data_abertura_fim'],
+            "ultimos_dias": 0  # Mantendo a chave "ultimos_dias" conforme solicitado
         }
-    if filtros['capital_social_minimo'] and filtros['capital_social_maximo']:
+    if filtros.get('capital_social_minimo') and filtros.get('capital_social_maximo'):
         body['capital_social'] = {
             "minimo": filtros['capital_social_minimo'],
             "maximo": filtros['capital_social_maximo']
         }
+
+    # Se não houver filtros, o corpo da requisição será vazio
+    if not body:
+        body = {}
 
     # Realizando a requisição
     response = requests.post(url, headers=headers, json=body)
@@ -41,18 +47,16 @@ def fazer_requisicao(filtros):
 
 # Interface com Streamlit
 def app():
-    st.title("Busca Avançada CNPJ")
-
     # Campos de input para os filtros
     estado = st.text_input("Estado (ex: SP)", "")
     situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INATIVA"])
     codigo_atividade_principal = st.text_input("Código Atividade Principal (ex: 7020400)", "")
     data_abertura_inicio = st.date_input("Data Abertura - Início", None)
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
-    capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=0, value=0)
-    capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=0, value=0)
+    capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=0)
+    capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=1000, value=500000)
 
-    # Criando o dicionário de filtros
+    # Criando o dicionário de filtros, ignorando valores vazios
     filtros = {
         "estado": [estado] if estado else None,
         "situacao_cadastral": [situacao_cadastral] if situacao_cadastral else None,
