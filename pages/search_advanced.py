@@ -18,16 +18,27 @@ def fazer_requisicao(filtros):
         body['nome_empresa'] = filtros['nome_empresa']
     if filtros.get('estado'):
         body['estado'] = filtros['estado']
+    if filtros.get('municipio'):
+        body['municipio'] = filtros['municipio']
     if filtros.get('situacao_cadastral'):
         body['situacao_cadastral'] = filtros['situacao_cadastral']
     if filtros.get('codigo_atividade_principal'):
         body['codigo_atividade_principal'] = filtros['codigo_atividade_principal']
+    
+    # Se as datas de abertura não forem fornecidas, define o valor padrão "2025-01-12"
     if filtros.get('data_abertura_inicio') and filtros.get('data_abertura_fim'):
         body['data_abertura'] = {
             "inicio": filtros['data_abertura_inicio'],
             "fim": filtros['data_abertura_fim'],
-            "ultimos_dias": 0  # Mantendo a chave "ultimos_dias" conforme solicitado
+            "ultimos_dias": 0
         }
+    else:
+        body['data_abertura'] = {
+            "inicio": "2025-01-12",
+            "fim": "2025-01-12",
+            "ultimos_dias": 0
+        }
+
     if filtros.get('capital_social_minimo') and filtros.get('capital_social_maximo'):
         body['capital_social'] = {
             "minimo": filtros['capital_social_minimo'],
@@ -50,20 +61,26 @@ def fazer_requisicao(filtros):
 # Interface com Streamlit
 def app():
     # Campos de input para os filtros
-    nome_empresa = st.text_input("Nome da Empresa"," ")
+    nome_empresa = st.text_input("Nome da Empresa", "")
     estado = st.text_input("Estado (ex: SP)", "")
-    municipio = st.text_input("Município"," ")
+    municipio = st.text_input("Município (ex: Guarulhos)", "")  # Adicionando o campo Município
     situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INAPTA"])
     codigo_atividade_principal = st.text_input("Código Atividade Principal (ex: 7020400)", "")
     data_abertura_inicio = st.date_input("Data Abertura - Início", None)
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
     capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=0)
     capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=1000, value=0)
+
+    # Ajustando as datas de abertura para "2025-01-12" se não forem informadas
+    if not data_abertura_inicio and not data_abertura_fim:
+        data_abertura_inicio = "2025-01-12"
+        data_abertura_fim = "2025-01-12"
+
     # Criando o dicionário de filtros, ignorando valores vazios
     filtros = {
-        "nome_empresa":[nome_empresa] if nome_empresa else None,
+        "nome_empresa": [nome_empresa] if nome_empresa else None,
         "estado": [estado] if estado else None,
-        "municipio":[municipio] if municipio else None,
+        "municipio": [municipio] if municipio else None,  # Adicionando município como lista
         "situacao_cadastral": [situacao_cadastral] if situacao_cadastral else None,
         "codigo_atividade_principal": [codigo_atividade_principal] if codigo_atividade_principal else None,
         "data_abertura_inicio": data_abertura_inicio if data_abertura_inicio else None,
@@ -72,7 +89,6 @@ def app():
         "capital_social_maximo": capital_social_maximo if capital_social_maximo else None,
     }
 
-    
     # Botão para realizar a busca
     if st.button("Buscar"):
         # Fazer a requisição com os filtros
