@@ -19,6 +19,8 @@ def fazer_requisicao(filtros):
     # Adicionando filtros no corpo da requisição, apenas se houver valores
     if filtros.get('estado'):
         body['estado'] = filtros['estado']
+    if filtros.get('municipio'):
+        body['municipio'] = filtros['municipio']
     if filtros['municipio']:
         body['municipio'] = filtros['municipio']
     if filtros.get('bairro'):
@@ -62,7 +64,10 @@ def app():
     # Campos de input para os filtros
     cnpj = st.text_input("CNPJ:", " ", placeholder="99999999999999", key="cnpj_input")
     nome_empresa = st.text_input("Nome da Empresa"," ",key="nome_empresa_input"),
-    estado = st.selectbox("Selecione o Estado", ["", "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"]),
+    estado = st.selectbox(
+        "Selecione o Estado",
+        [""] + ["AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"]
+    ),
     ddd = st.text_input("DDD", " ",key="ddd_input"),
     cep = st.text_input("CEP", " ", key="cep_input"),
     bairro = st.text_input("Bairro"," ",key="bairro_input")
