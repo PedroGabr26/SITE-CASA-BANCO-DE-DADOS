@@ -5,8 +5,8 @@ st.title("Página 3")
 # Função para realizar a requisição à API
 def fazer_requisicao(filtros):
     url = "https://api.casadosdados.com.br/v5/cnpj/pesquisa"
-    headers = {
-        "api-key": "485a4129e6a8763fe42c87b03996ab87b93092727623ddf2763da480588d8ed8f36f7b092cfc5af5ec1b5062b9eac8cd8e2ed9298c95f6f25d2908dd8287012c"
+    headers = { # provavel mudança : pegar o valor da api-key da página 2 e jogar aqui
+      "api-key": "485a4129e6a8763fe42c87b03996ab87b93092727623ddf2763da480588d8ed8f36f7b092cfc5af5ec1b5062b9eac8cd8e2ed9298c95f6f25d2908dd8287012c"
     }
 
     # Corpo da requisição com os filtros
@@ -49,8 +49,8 @@ def app():
     codigo_atividade_principal = st.text_input("Código Atividade Principal (ex: 7020400)", "")
     data_abertura_inicio = st.date_input("Data Abertura - Início", None)
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
-    capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=10000)
-    capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=1000, value=500000)
+    capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=0, value=0)
+    capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=0, value=0)
 
     # Criando o dicionário de filtros
     filtros = {
