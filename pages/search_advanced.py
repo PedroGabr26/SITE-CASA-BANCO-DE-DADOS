@@ -19,6 +19,14 @@ def fazer_requisicao(filtros):
     # Adicionando filtros no corpo da requisição, apenas se houver valores
     if filtros.get('estado'):
         body['estado'] = filtros['estado']
+    if filtros['municipio']:
+        body['municipio'] = filtros['municipio']
+    if filtros.get('bairro'):
+        body['bairro'] = filtros['bairro']
+    if filtros.get('cep'):
+        body['cep'] = filtros['cep']
+    if filtros.get('ddd'):
+        body['ddd'] = filtros['ddd']
     if filtros.get('situacao_cadastral'):
         body['situacao_cadastral'] = filtros['situacao_cadastral']
     if filtros.get('codigo_atividade_principal'):
@@ -48,24 +56,45 @@ def fazer_requisicao(filtros):
     else:
         return {"erro": response.status_code}
 
+municipio = None
 # Interface com Streamlit
 def app():
     # Campos de input para os filtros
     cnpj = st.text_input("CNPJ:", " ", placeholder="99999999999999", key="cnpj_input")
-    nome_empresa = st.text_input("Nome da Empresa"," ",key="nome_empresa_input")
-    estado = st.text_input("Estado (ex: SP)", "",key="estado_input")
+    nome_empresa = st.text_input("Nome da Empresa"," ",key="nome_empresa_input"),
+    estado = st.selectbox("Selecione o Estado", ["", "AC", "AL", "AP", "AM", "BA", "CE", "DF", "ES", "GO", "MA", "MT", "MS", "MG", "PA", "PB", "PR", "PE", "PI", "RJ", "RN", "RS", "RO", "RR", "SC", "SP", "SE", "TO"]),
+    ddd = st.text_input("DDD", " ",key="ddd_input"),
+    cep = st.text_input("CEP", " ", key="cep_input"),
+    bairro = st.text_input("Bairro"," ",key="bairro_input")
     situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INAPTA"])
     codigo_atividade_principal = st.text_input("Código Atividade Principal (ex: 7020400)", "")
     data_abertura_inicio = st.date_input("Data Abertura - Início", None)
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
     capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=0)
     capital_social_maximo = st.number_input("Capital Social Máximo", min_value=0, step=1000, value=0)
+    if estado:
+        url = f"https://servicodados.ibge.gov.br/api/v2/municipios?uf={estado}"
+        response = requests.get(url)
+        
+        if response.status_code == 200:
+            municipios_data = response.json()
+            municipios = [municipio['nome'] for municipio in municipios_data]
 
+            municipio = st.selectbox("Selecione o Município", [""] + municipios)
+        else:
+            st.error("Erro ao carregar municípios. Tente novamente.")
+    else:
+        st.info("Selecione um estado para exibir os municípios.")
+    
     # Criando o dicionário de filtros, ignorando valores vazios
     filtros = {
         "cnpj": [cnpj] if cnpj else None,
         "nome_empresa": [nome_empresa] if nome_empresa else None,
-        "estado": [estado] if estado else None,
+        "ddd":[ddd] if ddd else None,
+        "estado":[estado] if estado else None,
+        "municipio": municipio if municipio else None,
+        "bairro": [bairro] if bairro else None,
+        "cep":[cep] if cep else None,
         "situacao_cadastral": [situacao_cadastral] if situacao_cadastral else None,
         "codigo_atividade_principal": [codigo_atividade_principal] if codigo_atividade_principal else None,
         "data_abertura_inicio": data_abertura_inicio if data_abertura_inicio else None,
