@@ -2,6 +2,8 @@ import streamlit as st
 import requests
 import pandas as pd
 
+st.title("Página 2")
+
 #st.subheader("🔑 Coloque sua API Key")
 st.title("🔍 Consulta de CNPJ - Casa dos Dados")
 st.subheader("Bem-vindo! Realize buscas detalhadas de CNPJs com informações ricas e organizadas.")

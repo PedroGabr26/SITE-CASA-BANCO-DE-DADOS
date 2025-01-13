@@ -1,6 +1,7 @@
 import streamlit as st
 import requests
 
+st.title("Página 3")
 # Função para realizar a requisição à API
 def fazer_requisicao(filtros):
     url = "https://api.casadosdados.com.br/v5/cnpj/pesquisa"
