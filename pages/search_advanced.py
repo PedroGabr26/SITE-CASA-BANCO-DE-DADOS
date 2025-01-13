@@ -14,6 +14,8 @@ def fazer_requisicao(filtros):
     body = {}
     if filtros.get('cnpj'):
         body['cnpj'] = filtros['cnpj']
+    if filtros.get('nome_empresa'):
+        body['nome_empresa'] = filtros['nome_empresa']
     # Adicionando filtros no corpo da requisição, apenas se houver valores
     if filtros.get('estado'):
         body['estado'] = filtros['estado']
@@ -49,7 +51,8 @@ def fazer_requisicao(filtros):
 # Interface com Streamlit
 def app():
     # Campos de input para os filtros
-    cnpj = st.text_input("CNPJ:", " ", placeholder=99999999999999, key="cnpj_input")
+    cnpj = st.text_input("CNPJ:", " ", placeholder="99999999999999", key="cnpj_input")
+    nome_empresa = st.text_input("Nome da Empresa"," ",key="nome_empresa_input")
     estado = st.text_input("Estado (ex: SP)", "",key="estado_input")
     situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INAPTA"])
     codigo_atividade_principal = st.text_input("Código Atividade Principal (ex: 7020400)", "")
@@ -61,6 +64,7 @@ def app():
     # Criando o dicionário de filtros, ignorando valores vazios
     filtros = {
         "cnpj": [cnpj] if cnpj else None,
+        "nome_empresa": [nome_empresa] if nome_empresa else None,
         "estado": [estado] if estado else None,
         "situacao_cadastral": [situacao_cadastral] if situacao_cadastral else None,
         "codigo_atividade_principal": [codigo_atividade_principal] if codigo_atividade_principal else None,
