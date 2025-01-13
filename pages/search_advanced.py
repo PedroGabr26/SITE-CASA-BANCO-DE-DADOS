@@ -49,7 +49,7 @@ def fazer_requisicao(filtros):
 def app():
     # Campos de input para os filtros
     estado = st.text_input("Estado (ex: SP)", "")
-    situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INATIVA"])
+    situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INAPTA"])
     codigo_atividade_principal = st.text_input("Código Atividade Principal (ex: 7020400)", "")
     data_abertura_inicio = st.date_input("Data Abertura - Início", None)
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
