@@ -67,7 +67,7 @@ def app():
     cnpj = st.text_input("CNPJ", "")
     estado = st.text_input("Estado", "")
     bairro = st.text_input("Bairro", "")
-    ddd = st.text_input("DDD ", "")
+    ddd = st.text_input("DDD", "")
     nome_empresa = st.text_input("Nome da Empresa", "")
     municipio = st.text_input("Município", "")
     situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INAPTA", "BAIXADA", "NULA", "SUSPENSA"])
