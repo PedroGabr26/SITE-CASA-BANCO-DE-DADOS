@@ -1,9 +1,10 @@
 import streamlit as st
 import requests
+import pandas as pd
 
 st.title("Busca Avançada CNPJ")
 
-# Função para realizar a requisição à API com paginação
+# Função para realizar a requisição à API
 def fazer_requisicao(filtros):
     url = "https://api.casadosdados.com.br/v5/cnpj/pesquisa"
     headers = {
@@ -13,11 +14,11 @@ def fazer_requisicao(filtros):
     # Corpo da requisição com os filtros
     body = {}
 
-    # Adicionando filtros no corpo da requisição
+    # Adicionando filtros no corpo da requisição, com formato de lista
     if filtros.get('cnpj'):
         body['cnpj'] = filtros['cnpj']
     if filtros.get('estado'):
-        body['estado'] = filtros['estado']
+        body['uf'] = filtros['estado']
     if filtros.get('bairro'):
         body['bairro'] = filtros['bairro']
     if filtros.get('ddd'):
@@ -34,7 +35,7 @@ def fazer_requisicao(filtros):
         body['data_abertura'] = {
             "inicio": filtros['data_abertura_inicio'],
             "fim": filtros['data_abertura_fim'],
-            "ultimos_dias": 0  # Mantendo a chave "ultimos_dias" conforme solicitado
+            "ultimos_dias": 0
         }
     if filtros.get('capital_social_minimo') is not None and filtros.get('capital_social_maximo') is not None:
         body['capital_social'] = {
@@ -47,44 +48,30 @@ def fazer_requisicao(filtros):
             "maximo": 0
         }
 
-    # Inicializando a página
-    page = 1
-    total_results = 0
-    cnpjs = []
+    # Realizando a requisição
+    response = requests.post(url, headers=headers, json=body)
 
-    while True:
-        body['page'] = page  # Adiciona o número da página na requisição
-        response = requests.post(url, headers=headers, json=body)
+    # Verificando a resposta
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return {"erro": response.status_code}
 
-        if response.status_code == 200:
-            data = response.json()
-            cnpjs_page = data.get('cnpjs', [])
-            total_results += len(cnpjs_page)
-            cnpjs.extend(cnpjs_page)  # Adiciona os resultados da página à lista total
-
-            # Verifica se há uma próxima página
-            next_page = data.get('next_page')  # Substitua "next_page" pelo campo correto, se necessário
-            if next_page:
-                page += 1  # Se houver próxima página, incrementa o número da página
-            else:
-                break  # Se não houver mais páginas, sai do loop
-        else:
-            return {"erro": response.status_code}
-
-    return {"total": total_results, "cnpjs": cnpjs}
-
+# Função para formatar a data
+def formatar_data(data):
+    return pd.to_datetime(data).strftime('%d/%m/%Y') if data else "N/A"
 
 # Interface com Streamlit
 def app():
     # Campos de input para os filtros
-    cnpj = st.text_input("CNPJ (separados por vírgula)", "")
-    estado = st.text_input("Estado (separados por vírgula)", "")
-    bairro = st.text_input("Bairro (separados por vírgula)", "")
-    ddd = st.text_input("DDD (separados por vírgula)", "")
-    nome_empresa = st.text_input("Nome da Empresa (separados por vírgula)", "")
-    municipio = st.text_input("Município (separados por vírgula)", "")
+    cnpj = st.text_input("CNPJ", "")
+    estado = st.text_input("Estado", "")
+    bairro = st.text_input("Bairro", "")
+    ddd = st.text_input("DDD ", "")
+    nome_empresa = st.text_input("Nome da Empresa", "")
+    municipio = st.text_input("Município", "")
     situacao_cadastral = st.selectbox("Situação Cadastral", ["", "ATIVA", "INAPTA", "BAIXADA", "NULA", "SUSPENSA"])
-    codigo_atividade_principal = st.text_input("Código Atividade Principal (separados por vírgula)", "")
+    codigo_atividade_principal = st.text_input("Código Atividade Principal", "")
     data_abertura_inicio = st.date_input("Data Abertura - Início", None)
     data_abertura_fim = st.date_input("Data Abertura - Fim", None)
     capital_social_minimo = st.number_input("Capital Social Mínimo", min_value=0, step=1000, value=0)
@@ -99,7 +86,9 @@ def app():
         "nome_empresa": [x.strip() for x in nome_empresa.split(',')] if nome_empresa else None,
         "municipio": [x.strip() for x in municipio.split(',')] if municipio else None,
         "situacao_cadastral": [situacao_cadastral] if situacao_cadastral else None,
-        "codigo_atividade_principal": [x.strip() for x in codigo_atividade_principal.split(',')] if codigo_atividade_principal else None,
+        "codigo_atividade_principal": [
+            x.replace('-', '').replace('/', '') for x in codigo_atividade_principal.split(',') if x.strip()
+        ] if codigo_atividade_principal else None,
         "data_abertura_inicio": data_abertura_inicio if data_abertura_inicio else None,
         "data_abertura_fim": data_abertura_fim if data_abertura_fim else None,
         "capital_social_minimo": capital_social_minimo if capital_social_minimo else None,
@@ -115,17 +104,19 @@ def app():
         if "erro" in resultados:
             st.error(f"Erro na requisição: {resultados['erro']}")
         else:
-            total = resultados.get('total', 0)
-            cnpjs = resultados.get('cnpjs', [])
+            # Exibindo os resultados de forma mais bonita
+            total = resultados['total']
+            st.subheader(f"Total de resultados: {total}")
             
-            st.write(f"Total de resultados encontrados: {total}")
-            
-            if cnpjs:
-                st.write("CNPJs encontrados:")
-                for cnpj in cnpjs:
-                    st.write(cnpj)  # Exibe cada CNPJ individualmente
-            else:
-                st.write("Nenhum CNPJ encontrado.")
+            # Criação da tabela para exibir os CNPJs
+            cnpjs = resultados['cnpjs']
+            df = pd.DataFrame(cnpjs)
+            df['data'] = df['situacao_cadastral'].apply(lambda x: formatar_data(x['data'] if isinstance(x, dict) else None))
+            df['situacao_atual'] = df['situacao_cadastral'].apply(lambda x: x['situacao_atual'] if isinstance(x, dict) else "N/A")
+            df.drop(columns=['situacao_cadastral'], inplace=True)
+
+            # Exibir a tabela formatada
+            st.dataframe(df)
 
 # Rodar a aplicação
 if __name__ == "__main__":
